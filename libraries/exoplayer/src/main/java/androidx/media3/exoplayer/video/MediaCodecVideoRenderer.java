@@ -149,6 +149,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
   private final boolean deviceNeedsNoPostProcessWorkaround;
   private final VideoFrameReleaseControl videoFrameReleaseControl;
   private final VideoFrameReleaseControl.FrameReleaseInfo videoFrameReleaseInfo;
+  private final boolean mapDV7ToHevc;
 
   private @MonotonicNonNull CodecMaxValues codecMaxValues;
   private boolean codecNeedsSetOutputSurfaceWorkaround;
@@ -197,7 +198,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
         allowedJoiningTimeMs,
         /* eventHandler= */ null,
         /* eventListener= */ null,
-        /* maxDroppedFramesToNotify= */ 0);
+        /* maxDroppedFramesToNotify= */ 0,
+        /* mapDV7ToHevc= */ false);
   }
 
   /**
@@ -217,7 +219,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
       long allowedJoiningTimeMs,
       @Nullable Handler eventHandler,
       @Nullable VideoRendererEventListener eventListener,
-      int maxDroppedFramesToNotify) {
+      int maxDroppedFramesToNotify,
+      boolean mapDV7ToHevc) {
     this(
         context,
         MediaCodecAdapter.Factory.getDefault(context),
@@ -227,7 +230,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
         eventHandler,
         eventListener,
         maxDroppedFramesToNotify,
-        /* assumedMinimumCodecOperatingRate= */ 30);
+        /* assumedMinimumCodecOperatingRate= */ 30,
+        /* mapDV7ToHevc= */ mapDV7ToHevc);
   }
 
   /**
@@ -261,7 +265,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
         eventHandler,
         eventListener,
         maxDroppedFramesToNotify,
-        /* assumedMinimumCodecOperatingRate= */ 30);
+        /* assumedMinimumCodecOperatingRate= */ 30,
+        /* mapDV7ToHevc= */ false);
   }
 
   /**
@@ -288,7 +293,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
       boolean enableDecoderFallback,
       @Nullable Handler eventHandler,
       @Nullable VideoRendererEventListener eventListener,
-      int maxDroppedFramesToNotify) {
+      int maxDroppedFramesToNotify,
+      boolean mapDV7ToHevc) {
     this(
         context,
         codecAdapterFactory,
@@ -298,7 +304,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
         eventHandler,
         eventListener,
         maxDroppedFramesToNotify,
-        /* assumedMinimumCodecOperatingRate= */ 30);
+        /* assumedMinimumCodecOperatingRate= */ 30,
+        mapDV7ToHevc);
   }
 
   /**
@@ -331,7 +338,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
       @Nullable Handler eventHandler,
       @Nullable VideoRendererEventListener eventListener,
       int maxDroppedFramesToNotify,
-      float assumedMinimumCodecOperatingRate) {
+      float assumedMinimumCodecOperatingRate,
+      boolean mapDV7ToHevc) {
     this(
         context,
         codecAdapterFactory,
@@ -342,7 +350,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
         eventListener,
         maxDroppedFramesToNotify,
         assumedMinimumCodecOperatingRate,
-        /* videoSinkProvider= */ null);
+        /* videoSinkProvider= */ null,
+        mapDV7ToHevc);
   }
 
   /**
@@ -381,7 +390,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
       @Nullable VideoRendererEventListener eventListener,
       int maxDroppedFramesToNotify,
       float assumedMinimumCodecOperatingRate,
-      @Nullable VideoSinkProvider videoSinkProvider) {
+      @Nullable VideoSinkProvider videoSinkProvider,
+      boolean mapDV7ToHevc) {
     super(
         C.TRACK_TYPE_VIDEO,
         codecAdapterFactory,
@@ -389,6 +399,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
         enableDecoderFallback,
         assumedMinimumCodecOperatingRate);
     this.maxDroppedFramesToNotify = maxDroppedFramesToNotify;
+    this.mapDV7ToHevc = mapDV7ToHevc;
     this.context = context.getApplicationContext();
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     ownsVideoSink = videoSinkProvider == null;
@@ -459,7 +470,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
             mediaCodecSelector,
             format,
             requiresSecureDecryption,
-            /* requiresTunnelingDecoder= */ false);
+            /* requiresTunnelingDecoder= */ false,
+            mapDV7ToHevc);
     if (requiresSecureDecryption && decoderInfos.isEmpty()) {
       // No secure decoders are available. Fall back to non-secure decoders.
       decoderInfos =
@@ -468,7 +480,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
               mediaCodecSelector,
               format,
               /* requiresSecureDecoder= */ false,
-              /* requiresTunnelingDecoder= */ false);
+              /* requiresTunnelingDecoder= */ false,
+              mapDV7ToHevc);
     }
     if (decoderInfos.isEmpty()) {
       return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_SUBTYPE);
@@ -522,7 +535,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
               mediaCodecSelector,
               format,
               requiresSecureDecryption,
-              /* requiresTunnelingDecoder= */ true);
+              /* requiresTunnelingDecoder= */ true,
+              mapDV7ToHevc);
       if (!tunnelingDecoderInfos.isEmpty()) {
         MediaCodecInfo tunnelingDecoderInfo =
             MediaCodecUtil.getDecoderInfosSortedByFormatSupport(tunnelingDecoderInfos, format)
@@ -547,7 +561,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
       MediaCodecSelector mediaCodecSelector, Format format, boolean requiresSecureDecoder)
       throws DecoderQueryException {
     return MediaCodecUtil.getDecoderInfosSortedByFormatSupport(
-        getDecoderInfos(context, mediaCodecSelector, format, requiresSecureDecoder, tunneling),
+        getDecoderInfos(context, mediaCodecSelector, format, requiresSecureDecoder, tunneling, mapDV7ToHevc),
         format);
   }
 
@@ -574,7 +588,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
       MediaCodecSelector mediaCodecSelector,
       Format format,
       boolean requiresSecureDecoder,
-      boolean requiresTunnelingDecoder)
+      boolean requiresTunnelingDecoder,
+      boolean mapDV7ToHevc)
       throws DecoderQueryException {
     if (format.sampleMimeType == null) {
       return ImmutableList.of();
@@ -584,7 +599,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
         && !Api26.doesDisplaySupportDolbyVision(context)) {
       List<MediaCodecInfo> alternativeDecoderInfos =
           MediaCodecUtil.getAlternativeDecoderInfos(
-              mediaCodecSelector, format, requiresSecureDecoder, requiresTunnelingDecoder);
+              mediaCodecSelector, format, requiresSecureDecoder, requiresTunnelingDecoder, mapDV7ToHevc);
       if (!alternativeDecoderInfos.isEmpty()) {
         return alternativeDecoderInfos;
       }
