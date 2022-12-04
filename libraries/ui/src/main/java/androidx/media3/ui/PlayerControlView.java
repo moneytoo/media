@@ -1125,6 +1125,10 @@ public class PlayerControlView extends FrameLayout {
     controlViewLayoutManager.show();
   }
 
+  public void showProgress() {
+    controlViewLayoutManager.showProgress();
+  }
+
   /** Hides the controller. */
   public void hide() {
     controlViewLayoutManager.hide();
