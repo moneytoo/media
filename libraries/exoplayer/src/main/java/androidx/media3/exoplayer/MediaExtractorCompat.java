@@ -738,7 +738,7 @@ public final class MediaExtractorCompat {
             /* compatibilityTrackMimeType= */ null));
     @Nullable
     String compatibilityTrackMimeType =
-        MediaCodecUtil.getAlternativeCodecMimeType(newUpstreamFormat);
+        MediaCodecUtil.getAlternativeCodecMimeType(newUpstreamFormat, false);
     if (compatibilityTrackMimeType != null) {
       mediaExtractorSampleQueue.setCompatibilityTrackIndex(tracks.size());
       tracks.add(
