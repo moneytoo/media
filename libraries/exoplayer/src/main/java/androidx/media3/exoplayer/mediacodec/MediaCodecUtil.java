@@ -204,7 +204,7 @@ public final class MediaCodecUtil {
             format.sampleMimeType, requiresSecureDecoder, requiresTunnelingDecoder);
     List<MediaCodecInfo> alternativeDecoderInfos =
         getAlternativeDecoderInfos(
-            mediaCodecSelector, format, requiresSecureDecoder, requiresTunnelingDecoder);
+            mediaCodecSelector, format, requiresSecureDecoder, requiresTunnelingDecoder, /* mapDV7ToHevc */ false);
     return ImmutableList.<MediaCodecInfo>builder()
         .addAll(decoderInfos)
         .addAll(alternativeDecoderInfos)
@@ -233,9 +233,10 @@ public final class MediaCodecUtil {
       MediaCodecSelector mediaCodecSelector,
       Format format,
       boolean requiresSecureDecoder,
-      boolean requiresTunnelingDecoder)
+      boolean requiresTunnelingDecoder,
+      boolean mapDV7ToHevc)
       throws DecoderQueryException {
-    @Nullable String alternativeMimeType = getAlternativeCodecMimeType(format);
+    @Nullable String alternativeMimeType = getAlternativeCodecMimeType(format, mapDV7ToHevc);
     if (alternativeMimeType == null) {
       return ImmutableList.of();
     }
@@ -346,6 +347,10 @@ public final class MediaCodecUtil {
     return getHevcProfileAndLevel(codecs, parts, format.colorInfo);
   }
 
+  public static String getAlternativeCodecMimeType(Format format) {
+    return getAlternativeCodecMimeType(format, false);
+  }
+
   /**
    * Returns an alternative codec MIME type (besides the default {@link Format#sampleMimeType}) that
    * can be used to decode samples of the provided {@link Format}.
@@ -356,7 +361,7 @@ public final class MediaCodecUtil {
    *     exists.
    */
   @Nullable
-  public static String getAlternativeCodecMimeType(Format format) {
+  public static String getAlternativeCodecMimeType(Format format, boolean mapDV7ToHevc) {
     if (MimeTypes.AUDIO_E_AC3_JOC.equals(format.sampleMimeType)) {
       // E-AC3 decoders can decode JOC streams, but in 2-D rather than 3-D.
       return MimeTypes.AUDIO_E_AC3;
@@ -370,7 +375,8 @@ public final class MediaCodecUtil {
       if (codecProfileAndLevel != null) {
         int profile = codecProfileAndLevel.first;
         if (profile == CodecProfileLevel.DolbyVisionProfileDvheDtr
-            || profile == CodecProfileLevel.DolbyVisionProfileDvheSt) {
+            || profile == CodecProfileLevel.DolbyVisionProfileDvheSt
+            || (mapDV7ToHevc && profile == CodecProfileLevel.DolbyVisionProfileDvheDtb)) {
           return MimeTypes.VIDEO_H265;
         } else if (profile == CodecProfileLevel.DolbyVisionProfileDvavSe) {
           return MimeTypes.VIDEO_H264;

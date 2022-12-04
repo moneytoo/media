@@ -108,6 +108,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
   private boolean enableFloatOutput;
   private boolean enableAudioTrackPlaybackParams;
   private boolean enableMediaCodecVideoRendererPrewarming;
+  private boolean mapDV7ToHevc;
 
   /**
    * @param context A {@link Context}.
@@ -118,6 +119,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
     extensionRendererMode = EXTENSION_RENDERER_MODE_OFF;
     allowedVideoJoiningTimeMs = DEFAULT_ALLOWED_VIDEO_JOINING_TIME_MS;
     mediaCodecSelector = MediaCodecSelector.DEFAULT;
+    mapDV7ToHevc = false;
   }
 
   /**
@@ -134,6 +136,12 @@ public class DefaultRenderersFactory implements RenderersFactory {
   public final DefaultRenderersFactory setExtensionRendererMode(
       @ExtensionRendererMode int extensionRendererMode) {
     this.extensionRendererMode = extensionRendererMode;
+    return this;
+  }
+
+  @CanIgnoreReturnValue
+  public DefaultRenderersFactory setMapDV7ToHevc(boolean mapDV7ToHevc) {
+    this.mapDV7ToHevc = mapDV7ToHevc;
     return this;
   }
 
@@ -375,7 +383,8 @@ public class DefaultRenderersFactory implements RenderersFactory {
             enableDecoderFallback,
             eventHandler,
             eventListener,
-            MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY);
+            MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY,
+            mapDV7ToHevc);
     out.add(videoRenderer);
 
     if (extensionRendererMode == EXTENSION_RENDERER_MODE_OFF) {

@@ -212,7 +212,8 @@ public class CapturingRenderersFactory implements RenderersFactory, Dumper.Dumpa
           enableDecoderFallback,
           eventHandler,
           eventListener,
-          maxDroppedFramesToNotify);
+          maxDroppedFramesToNotify,
+          false);
     }
 
     @Override
