@@ -23,6 +23,7 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
+import android.os.Build;
 import android.util.Pair;
 import android.util.SparseArray;
 import androidx.annotation.CallSuper;
@@ -45,6 +46,7 @@ import androidx.media3.extractor.AacUtil;
 import androidx.media3.extractor.AvcConfig;
 import androidx.media3.extractor.ChunkIndex;
 import androidx.media3.extractor.DolbyVisionConfig;
+import androidx.media3.extractor.DtsUtil;
 import androidx.media3.extractor.Extractor;
 import androidx.media3.extractor.ExtractorInput;
 import androidx.media3.extractor.ExtractorOutput;
@@ -1473,6 +1475,52 @@ public class MatroskaExtractor implements Extractor {
       return finishWriteSampleData();
     }
 
+    if (CODEC_ID_DTS.equals(track.codecId) && !track.dtsAnalyzed &&
+        !(Build.MANUFACTURER.equalsIgnoreCase("Geniatech") && Build.DEVICE.equalsIgnoreCase("enjoytv_hybrid"))) {
+      try {
+        byte[] bytes = new byte[16383 + 95];
+
+        input.advancePeekPosition(0);
+        input.peekFully(bytes, 0, bytes.length);
+        input.resetPeekPosition();
+
+        final ByteBuffer bb = ByteBuffer.wrap(bytes);
+        int offset;
+        boolean hasCore = false;
+
+        do {
+          offset = bb.position();
+          bb.mark();
+          int syncWord = bb.getInt();
+          bb.reset();
+
+          if (DtsUtil.isSyncWord(syncWord)) { // DTS_SYNCWORD_CORE
+            if (hasCore) {
+              break;
+            } else {
+              hasCore = true;
+            }
+          } else if (syncWord == 0x64582025) { // DTS_SYNCWORD_SUBSTREAM
+            track.formatBuilder.setSampleMimeType(MimeTypes.AUDIO_DTS_HD);
+            track.output.format(track.formatBuilder.build());
+            break;
+          } else {
+            break;
+          }
+
+          byte[] header = new byte[10];
+          bb.get(header);
+          int fsize = DtsUtil.getDtsFrameSize(header);
+          bb.position(offset + fsize);
+        } while (hasCore);
+
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+
+      track.dtsAnalyzed = true;
+    }
+
     TrackOutput output = track.output;
     if (!sampleEncodingHandled) {
       if (track.hasContentEncryption) {
@@ -2031,6 +2079,7 @@ public class MatroskaExtractor implements Extractor {
     public long codecDelayNs = 0;
     public long seekPreRollNs = 0;
     public @MonotonicNonNull TrueHdSampleRechunker trueHdSampleRechunker;
+    public boolean dtsAnalyzed = false;
 
     // Text elements.
     public boolean flagForced;
@@ -2039,6 +2088,7 @@ public class MatroskaExtractor implements Extractor {
 
     // Set when the output is initialized. nalUnitLengthFieldLength is only set for H264/H265.
     public @MonotonicNonNull TrackOutput output;
+    public Format.Builder formatBuilder;
     public int nalUnitLengthFieldLength;
 
     /** Initializes the track with an output. */
@@ -2258,7 +2308,7 @@ public class MatroskaExtractor implements Extractor {
       selectionFlags |= flagForced ? C.SELECTION_FLAG_FORCED : 0;
 
       int type;
-      Format.Builder formatBuilder = new Format.Builder();
+      formatBuilder = new Format.Builder();
       // TODO: Consider reading the name elements of the tracks and, if present, incorporating them
       // into the trackId passed when creating the formats.
       if (MimeTypes.isAudio(mimeType)) {
