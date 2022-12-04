@@ -174,7 +174,8 @@ public class MediaCodecVideoRendererTest {
             /* allowedJoiningTimeMs= */ 0,
             /* eventHandler= */ new Handler(testMainLooper),
             /* eventListener= */ eventListener,
-            /* maxDroppedFramesToNotify= */ 1) {
+            /* maxDroppedFramesToNotify= */ 1,
+            /* mapDV7ToHevc= */ false) {
           @Override
           protected @Capabilities int supportsFormat(
               MediaCodecSelector mediaCodecSelector, Format format) {
@@ -319,7 +320,8 @@ public class MediaCodecVideoRendererTest {
             /* enableDecoderFallback= */ false,
             /* eventHandler= */ new Handler(testMainLooper),
             /* eventListener= */ eventListener,
-            /* maxDroppedFramesToNotify= */ 1);
+            /* maxDroppedFramesToNotify= */ 1,
+            /* mapDV7ToHevc */ false);
     mediaCodecVideoRenderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
     mediaCodecVideoRenderer.handleMessage(Renderer.MSG_SET_VIDEO_OUTPUT, surface);
     mediaCodecVideoRenderer.enable(
@@ -430,7 +432,8 @@ public class MediaCodecVideoRendererTest {
             /* enableDecoderFallback= */ false,
             /* eventHandler= */ new Handler(testMainLooper),
             /* eventListener= */ eventListener,
-            /* maxDroppedFramesToNotify= */ 1);
+            /* maxDroppedFramesToNotify= */ 1,
+            /* mapDV7ToHevc */ false);
     mediaCodecVideoRenderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
     mediaCodecVideoRenderer.handleMessage(Renderer.MSG_SET_VIDEO_OUTPUT, surface);
     mediaCodecVideoRenderer.enable(
@@ -535,7 +538,8 @@ public class MediaCodecVideoRendererTest {
             /* enableDecoderFallback= */ false,
             /* eventHandler= */ new Handler(testMainLooper),
             /* eventListener= */ eventListener,
-            /* maxDroppedFramesToNotify= */ 1);
+            /* maxDroppedFramesToNotify= */ 1,
+            /* mapDV7ToHevc */ false);
     mediaCodecVideoRenderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
     mediaCodecVideoRenderer.handleMessage(Renderer.MSG_SET_VIDEO_OUTPUT, surface);
     mediaCodecVideoRenderer.enable(
@@ -1081,7 +1085,8 @@ public class MediaCodecVideoRendererTest {
             /* allowedJoiningTimeMs= */ 0,
             /* eventHandler= */ new Handler(testMainLooper),
             /* eventListener= */ eventListener,
-            /* maxDroppedFramesToNotify= */ 1);
+            /* maxDroppedFramesToNotify= */ 1,
+            /* mapDV7ToHevc= */ false);
     renderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
 
     @Capabilities
@@ -1166,7 +1171,8 @@ public class MediaCodecVideoRendererTest {
             /* allowedJoiningTimeMs= */ 0,
             /* eventHandler= */ new Handler(testMainLooper),
             /* eventListener= */ eventListener,
-            /* maxDroppedFramesToNotify= */ 1);
+            /* maxDroppedFramesToNotify= */ 1,
+            /* mapDV7ToHevc= */ false);
     renderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
 
     @Capabilities int capabilitiesDvheDtr = renderer.supportsFormat(formatDvheDtr);
@@ -1226,7 +1232,8 @@ public class MediaCodecVideoRendererTest {
             /* allowedJoiningTimeMs= */ 0,
             /* eventHandler= */ new Handler(testMainLooper),
             /* eventListener= */ eventListener,
-            /* maxDroppedFramesToNotify= */ 1);
+            /* maxDroppedFramesToNotify= */ 1,
+            /* mapDV7ToHevc */ false);
     renderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
 
     List<MediaCodecInfo> mediaCodecInfoList =
@@ -1269,7 +1276,8 @@ public class MediaCodecVideoRendererTest {
             /* allowedJoiningTimeMs= */ 0,
             /* eventHandler= */ new Handler(testMainLooper),
             /* eventListener= */ eventListener,
-            /* maxDroppedFramesToNotify= */ 1);
+            /* maxDroppedFramesToNotify= */ 1,
+            /* mapDV7ToHevc */ false);
     renderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
 
     List<MediaCodecInfo> mediaCodecInfoList =
@@ -1307,7 +1315,8 @@ public class MediaCodecVideoRendererTest {
             /* eventHandler= */ new Handler(testMainLooper),
             /* eventListener= */ eventListener,
             /* maxDroppedFramesToNotify= */ 1,
-            /* assumedMinimumCodecOperatingRate= */ 30) {
+            /* assumedMinimumCodecOperatingRate= */ 30,
+            /* mapDV7ToHevc */ false) {
           @Override
           protected @Capabilities int supportsFormat(
               MediaCodecSelector mediaCodecSelector, Format format) {
