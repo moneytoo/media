@@ -1353,7 +1353,7 @@ public class PlayerControlView extends FrameLayout {
         }
         Format trackFormat = trackGroup.getTrackFormat(trackIndex);
         if ((trackFormat.selectionFlags & C.SELECTION_FLAG_FORCED) != 0) {
-          continue;
+//          continue;
         }
         String trackName = trackNameProvider.getTrackName(trackFormat);
         trackInfos.add(new TrackInformation(tracks, trackGroupIndex, trackIndex, trackName));
@@ -2166,10 +2166,7 @@ public class PlayerControlView extends FrameLayout {
               player.setTrackSelectionParameters(
                   trackSelectionParameters
                       .buildUpon()
-                      .clearOverridesOfType(C.TRACK_TYPE_TEXT)
-                      .setIgnoredTextSelectionFlags(~C.SELECTION_FLAG_FORCED)
-                      .setPreferredTextLanguage(null)
-                      .setPreferredTextRoleFlags(0)
+                      .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, /* disabled= */ true)
                       .build());
               settingsWindow.dismiss();
             }
