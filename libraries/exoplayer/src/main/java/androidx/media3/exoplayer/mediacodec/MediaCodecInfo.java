@@ -285,7 +285,7 @@ public final class MediaCodecInfo {
 
   private boolean isSampleMimeTypeSupported(Format format) {
     return mimeType.equals(format.sampleMimeType)
-        || mimeType.equals(MediaCodecUtil.getAlternativeCodecMimeType(format));
+        || mimeType.equals(MediaCodecUtil.getAlternativeCodecMimeType(format, /* mapDV7ToHevc */ false));
   }
 
   private boolean isCodecProfileAndLevelSupported(Format format) {
