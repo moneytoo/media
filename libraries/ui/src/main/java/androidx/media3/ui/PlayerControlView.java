@@ -1638,8 +1638,13 @@ public class PlayerControlView extends FrameLayout {
     int width = Math.min(itemWidth, maxWidth);
     settingsWindow.setWidth(width);
 
-    int maxHeight =
-        Math.max(0, getHeight() - getPaddingTop() - getPaddingBottom() - settingsWindowMargin * 2);
+    View centerView = findViewById(R.id.exo_controls_background);
+    int topBar = 0;
+    if (centerView instanceof ViewGroup && ((ViewGroup) centerView).getChildCount() > 0)
+      topBar = ((ViewGroup) centerView).getChildAt(0).getBottom();
+    int[] bottomBarLocation = new int[2];
+    findViewById(R.id.exo_bottom_bar).getLocationOnScreen(bottomBarLocation);
+    int maxHeight = bottomBarLocation[1] - topBar - settingsWindowMargin;
     int totalHeight = settingsView.getMeasuredHeight();
     int height = Math.min(maxHeight, totalHeight);
     settingsWindow.setHeight(height);
@@ -1655,10 +1660,10 @@ public class PlayerControlView extends FrameLayout {
     needToHideBars = true;
 
     settingsWindowAnchor = anchorView;
-    int xoff = anchorView.getWidth() - settingsWindow.getWidth() - settingsWindowMargin;
-    int yoff = -settingsWindow.getHeight() - settingsWindowMargin;
+    int xoff = getWidth() - settingsWindow.getWidth() - settingsWindowMargin;
+    int yoff = - settingsWindowMargin / 2;
 
-    settingsWindow.showAsDropDown(anchorView, xoff, yoff);
+    settingsWindow.showAsDropDown(findViewById(R.id.exo_bottom_bar), xoff, yoff);
   }
 
   private void setPlaybackSpeed(float speed) {
@@ -1857,9 +1862,9 @@ public class PlayerControlView extends FrameLayout {
     View anchorView = settingsWindowAnchor;
     if (settingsWindow.isShowing() && anchorView != null) {
       updateSettingsWindowSize();
-      int xOffset = anchorView.getWidth() - settingsWindow.getWidth() - settingsWindowMargin;
-      int yOffset = -settingsWindow.getHeight() - settingsWindowMargin;
-      settingsWindow.update(anchorView, xOffset, yOffset, -1, -1);
+      int xOffset = getWidth() - settingsWindow.getWidth() - settingsWindowMargin;
+      int yOffset = - settingsWindowMargin / 2;
+      settingsWindow.update(findViewById(R.id.exo_bottom_bar), xOffset, yOffset, -1, -1);
     }
   }
 
