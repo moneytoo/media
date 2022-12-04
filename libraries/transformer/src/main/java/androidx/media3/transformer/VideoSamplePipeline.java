@@ -399,7 +399,7 @@ import org.checkerframework.dataflow.qual.Pure;
             getSupportedEncodersForHdrEditing(requestedOutputMimeType, inputFormat.colorInfo);
         if (hdrEncoders.isEmpty()) {
           @Nullable
-          String alternativeMimeType = MediaCodecUtil.getAlternativeCodecMimeType(inputFormat);
+          String alternativeMimeType = MediaCodecUtil.getAlternativeCodecMimeType(inputFormat, /* mapDV7ToHevc */ false);
           if (alternativeMimeType != null) {
             requestedOutputMimeType = alternativeMimeType;
             hdrEncoders =
