@@ -1,81 +1,5 @@
 # Release notes
 
-### Unreleased changes
-
-*   Common Library:
-    *   Implement support for `android.resource://package/[type/]name` raw
-        resource URIs where `package` is different to the package of the current
-        application. This has always been documented to work, but wasn't
-        correctly implemented until now.
-*   ExoPlayer:
-    *   Add `PreloadMediaSource` and `PreloadMediaPeriod` that allows apps to
-        preload the media source at a specific start position before playback,
-        where the efforts include preparing the source for a `Timeline`,
-        preparing and caching the period, selecting tracks and loading the data
-        on the period. Apps are able to control the preload progress by
-        implementing `PreloadMediaSource.PreloadControl`.
-*   Transformer:
-    *   Add support for flattening H.265/HEVC SEF slow motion videos.
-*   Track Selection:
-    *   Add `DefaultTrackSelector.selectImageTrack` to enable image track
-        selection.
-    *   Add `TrackSelectionParameters.isPrioritizeImageOverVideoEnabled` to
-        determine whether to select an image track if both an image track and a
-        video track are available. The default value is `false` which means
-        selecting a video track is prioritized.
-*   Extractors:
-    *   Add additional AV1C parsing to MP4 extractor to retrieve
-        `ColorInfo.colorSpace`, `ColorInfo.colorTransfer`, and
-        `ColorInfo.colorRange` values
-        ([#692](https://github.com/androidx/media/pull/692)).
-*   Audio:
-*   Video:
-    *   Add workaround for a device issue on Galaxy Tab S7 FE, Chromecast with
-        Google TV, and Lenovo M10 FHD Plus that causes 60fps AVC streams to be
-        marked as unsupported
-        ([#693](https://github.com/androidx/media/issues/693)).
-*   Text:
-*   Metadata:
-*   DRM:
-*   Effect:
-*   Muxers:
-*   IMA extension:
-*   Session:
-    *   Put the custom keys and values in `MediaMetadataCompat` to
-        `MediaMetadata.extras`
-        ([#756](https://github.com/androidx/media/issues/756)).
-*   UI:
-*   Downloads:
-*   OkHttp Extension:
-*   Cronet Extension:
-*   HttpEngine Extension:
-    *   Implement `HttpEngineDataSource`, an `HttpDataSource` using the
-        [HttpEngine](https://developer.android.com/reference/android/net/http/HttpEngine)
-        API.
-*   RTMP Extension:
-*   HLS Extension:
-    *   Reduce `HlsMediaPeriod` to package-private visibility. This type
-        shouldn't be directly depended on from outside the HLS package.
-    *   Add experimental support for parsing subtitles during extraction. You
-        can enable this using
-        `HlsMediaSource.Factory.experimentalParseSubtitlesDuringExtraction()`.
-*   DASH Extension:
-    *   Extend experimental support for parsing subtitles during extraction to
-        work with standalone text files (previously it only worked with
-        subtitles muxed into MP4 segments).
-*   Smooth Streaming Extension:
-*   RTSP Extension:
-*   Decoder Extensions (FFmpeg, VP9, AV1, MIDI, etc.):
-    *   MIDI decoder: Ignore SysEx event messages
-        ([#710](https://github.com/androidx/media/pull/710)).
-*   Leanback extension:
-*   Cast Extension:
-*   Test Utilities:
-*   Remove deprecated symbols:
-*   Demo app:
-    *   Add a shortform demo module to demo the usage of `PreloadMediaSource`
-        with the short-form content use case.
-
 ## 1.2
 
 ### 1.2.0 (2023-11-15)
@@ -101,11 +25,8 @@ This release includes the following changes since the
         `PlayerView.setShowPlayButtonIfPlaybackIsSuppressed(false)` or
         `MediaSession.Builder.setShowPlayButtonIfPlaybackIsSuppressed(false)`
         ([#11213](https://github.com/google/ExoPlayer/issues/11213)).
-    *   Upgrade `androidx.annotation:annotation-experimental` to `1.3.1`. This
-        also introduces a transitive dependency on the Kotlin standard library
-        from `media3-common`. Apps can
-        [downgrade to remove this dependency if they want](https://developer.android.com/guide/topics/media/exoplayer/shrinking#remove-kotlin-dep).
-        Fixes https://issuetracker.google.com/251172715.
+    *   Upgrade `androidx.annotation:annotation-experimental` to `1.3.1` to fix
+        https://issuetracker.google.com/251172715.
     *   Move `ExoPlayer.setAudioAttributes` to the `Player` interface.
 *   ExoPlayer:
     *   Fix seeking issues in AC4 streams caused by not identifying decode-only
