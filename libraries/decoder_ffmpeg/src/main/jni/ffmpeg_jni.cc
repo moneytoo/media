@@ -232,24 +232,6 @@ AUDIO_DECODER_FUNC(jlong, ffmpegReset, jlong jContext, jbyteArray extraData) {
     LOGE("Tried to reset without a context.");
     return 0L;
   }
-
-  AVCodecID codecId = context->codec_id;
-  if (codecId == AV_CODEC_ID_TRUEHD) {
-    // Release and recreate the context if the codec is TrueHD.
-    // TODO: Figure out why flushing doesn't work for this codec.
-    releaseContext(context);
-    const AVCodec *codec = avcodec_find_decoder(codecId);
-    if (!codec) {
-      LOGE("Unexpected error finding codec %d.", codecId);
-      return 0L;
-    }
-    jboolean outputFloat =
-        (jboolean)(context->request_sample_fmt == OUTPUT_FORMAT_PCM_FLOAT);
-    return (jlong)createContext(env, codec, extraData, outputFloat,
-                                /* rawSampleRate= */ -1,
-                                /* rawChannelCount= */ -1);
-  }
-
   avcodec_flush_buffers(context);
   return (jlong)context;
 }
@@ -293,7 +275,8 @@ AVCodecContext *createContext(JNIEnv *env, const AVCodec *codec,
     env->GetByteArrayRegion(extraData, 0, size, (jbyte *)context->extradata);
   }
   if (context->codec_id == AV_CODEC_ID_PCM_MULAW ||
-      context->codec_id == AV_CODEC_ID_PCM_ALAW) {
+      context->codec_id == AV_CODEC_ID_PCM_ALAW ||
+      context->codec_id == AV_CODEC_ID_TRUEHD) {
     context->sample_rate = rawSampleRate;
     av_channel_layout_default(&context->ch_layout, rawChannelCount);
   }
