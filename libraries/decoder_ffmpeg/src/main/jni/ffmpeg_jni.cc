@@ -293,7 +293,8 @@ AVCodecContext *createContext(JNIEnv *env, const AVCodec *codec,
     env->GetByteArrayRegion(extraData, 0, size, (jbyte *)context->extradata);
   }
   if (context->codec_id == AV_CODEC_ID_PCM_MULAW ||
-      context->codec_id == AV_CODEC_ID_PCM_ALAW) {
+      context->codec_id == AV_CODEC_ID_PCM_ALAW ||
+      context->codec_id == AV_CODEC_ID_TRUEHD) {
     context->sample_rate = rawSampleRate;
     av_channel_layout_default(&context->ch_layout, rawChannelCount);
   }
