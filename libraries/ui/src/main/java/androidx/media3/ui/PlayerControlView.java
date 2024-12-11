@@ -1353,7 +1353,7 @@ public class PlayerControlView extends FrameLayout {
         }
         Format trackFormat = trackGroup.getTrackFormat(trackIndex);
         if ((trackFormat.selectionFlags & C.SELECTION_FLAG_FORCED) != 0) {
-          continue;
+//          continue;
         }
         String trackName = trackNameProvider.getTrackName(trackFormat);
         trackInfos.add(new TrackInformation(tracks, trackGroupIndex, trackIndex, trackName));
