@@ -327,6 +327,10 @@ public final class MediaCodecUtil {
     return getHevcProfileAndLevel(codecs, parts, format.colorInfo);
   }
 
+  public static String getAlternativeCodecMimeType(Format format) {
+    return getAlternativeCodecMimeType(format, false);
+  }
+
   /**
    * Returns an alternative codec MIME type (besides the default {@link Format#sampleMimeType}) that
    * can be used to decode samples of the provided {@link Format}.
