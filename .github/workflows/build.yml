@@ -42,6 +42,13 @@ jobs:
           ref: 20230802.1
           path: libraries/decoder_av1/src/main/jni/libgav1/third_party/abseil-cpp
 
+      - name: decoder_mpegh
+        uses: actions/checkout@v4
+        with:
+          repository: Fraunhofer-IIS/mpeghdec
+          ref: r2.0.0
+          path: libraries/decoder_mpegh/src/main/jni/libmpegh
+
       - name: decoder_iamf
         uses: actions/checkout@v4
         with:
