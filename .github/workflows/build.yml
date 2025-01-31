@@ -21,6 +21,8 @@ jobs:
         with:
           ndk-version: r26b
 
+      - run: sudo apt-get update && sudo apt-get install -y ninja-build
+
       - name: decoder_av1 - cpu_features
         uses: actions/checkout@v4
         with:
@@ -32,7 +34,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: moneytoo/libgav1
-          ref: v0.19.0
+          ref: v0.20.0
           path: libraries/decoder_av1/src/main/jni/libgav1
 
       - name: decoder_av1 - abseil
