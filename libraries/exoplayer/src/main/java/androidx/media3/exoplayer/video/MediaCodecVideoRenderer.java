@@ -396,8 +396,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
         assumedMinimumCodecOperatingRate,
         /* videoSink= */ videoSinkProvider == null
             ? null
-            : videoSinkProvider.getSink(/* inputIndex= */ 0));
-        videoSinkProvider == null ? null : videoSinkProvider.getSink(),
+            : videoSinkProvider.getSink(/* inputIndex= */ 0),
         mapDV7ToHevc);
   }
 

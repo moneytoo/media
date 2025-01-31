@@ -787,7 +787,8 @@ public class DefaultRenderersFactory implements RenderersFactory {
           enableDecoderFallback,
           eventHandler,
           eventListener,
-          MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY);
+          MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY,
+          /* mapDV7ToHevc */ false);
     }
     return null;
   }
