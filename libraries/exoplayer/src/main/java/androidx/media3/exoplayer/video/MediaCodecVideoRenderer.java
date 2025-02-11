@@ -223,6 +223,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
   private final VideoFrameReleaseControl.FrameReleaseInfo videoFrameReleaseInfo;
   private final FixedFrameRateEstimator frameRateEstimator;
   @Nullable private final Av1SampleDependencyParser av1SampleDependencyParser;
+  private final boolean mapDV7ToHevc;
 
   /**
    * The earliest time threshold, in microseconds, after which decoder input buffers may be dropped.
@@ -292,6 +293,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
     private boolean enableMediaCodecBufferDecodeOnlyFlag;
     private boolean enableDurationToProgressUs;
     private long earlySchedulingThresholdUs;
+    private boolean mapDV7ToHevc;
 
     /**
      * Creates a new builder.
@@ -502,6 +504,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
       return this;
     }
 
+    public Builder setMapDV7ToHevc(boolean mapDV7ToHevc) {
+      this.mapDV7ToHevc = mapDV7ToHevc;
+      return this;
+    }
+
     /**
      * Builds the {@link MediaCodecVideoRenderer}. Must only be called once per Builder instance.
      *
@@ -709,6 +716,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
     enableDurationToProgressUs = builder.enableDurationToProgressUs;
     nextOutputBufferToProcessPresentationTimeUs = C.TIME_UNSET;
     scrubbingModeParameters = null;
+    this.mapDV7ToHevc = builder.mapDV7ToHevc;
   }
 
   // FrameTimingEvaluator methods
@@ -757,7 +765,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
    * @return The {@link Capabilities} for this format.
    * @throws DecoderQueryException Thrown if there was an error querying decoders.
    */
-  public static @Capabilities int supportsFormat(
+  public /*static*/ @Capabilities int supportsFormat(
       Context context, MediaCodecSelector mediaCodecSelector, Format format)
       throws DecoderQueryException {
     return supportsFormatInternal(context, mediaCodecSelector, format);
@@ -769,7 +777,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
     return supportsFormatInternal(context, mediaCodecSelector, format);
   }
 
-  private static @Capabilities int supportsFormatInternal(
+  private /*static*/ @Capabilities int supportsFormatInternal(
       Context context, MediaCodecSelector mediaCodecSelector, Format format)
       throws DecoderQueryException {
     String mimeType = format.sampleMimeType;
@@ -785,7 +793,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
             mediaCodecSelector,
             format,
             requiresSecureDecryption,
-            /* requiresTunnelingDecoder= */ false);
+            /* requiresTunnelingDecoder= */ false,
+            mapDV7ToHevc);
     if (requiresSecureDecryption && decoderInfos.isEmpty()) {
       // No secure decoders are available. Fall back to non-secure decoders.
       decoderInfos =
@@ -794,7 +803,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
               mediaCodecSelector,
               format,
               /* requiresSecureDecoder= */ false,
-              /* requiresTunnelingDecoder= */ false);
+              /* requiresTunnelingDecoder= */ false,
+              mapDV7ToHevc);
     }
     if (decoderInfos.isEmpty()) {
       return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_SUBTYPE);
@@ -848,7 +858,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
               mediaCodecSelector,
               format,
               requiresSecureDecryption,
-              /* requiresTunnelingDecoder= */ true);
+              /* requiresTunnelingDecoder= */ true,
+              mapDV7ToHevc);
       if (!tunnelingDecoderInfos.isEmpty()) {
         MediaCodecInfo tunnelingDecoderInfo =
             MediaCodecUtil.getDecoderInfosSortedByFormatSupport(
@@ -875,7 +886,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
       throws DecoderQueryException {
     return MediaCodecUtil.getDecoderInfosSortedByFormatSupport(
         context,
-        getDecoderInfos(context, mediaCodecSelector, format, requiresSecureDecoder, tunneling),
+        getDecoderInfos(context, mediaCodecSelector, format, requiresSecureDecoder, tunneling, mapDV7ToHevc),
         format);
   }
 
@@ -903,7 +914,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
       MediaCodecSelector mediaCodecSelector,
       Format format,
       boolean requiresSecureDecoder,
-      boolean requiresTunnelingDecoder)
+      boolean requiresTunnelingDecoder,
+      boolean mapDV7ToHevc)
       throws DecoderQueryException {
     if (format.sampleMimeType == null) {
       return ImmutableList.of();
@@ -913,7 +925,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
         && !Api26.doesDisplaySupportDolbyVision(context)) {
       List<MediaCodecInfo> alternativeDecoderInfos =
           MediaCodecUtil.getAlternativeDecoderInfos(
-              mediaCodecSelector, format, requiresSecureDecoder, requiresTunnelingDecoder);
+              mediaCodecSelector, format, requiresSecureDecoder, requiresTunnelingDecoder, mapDV7ToHevc);
       if (!alternativeDecoderInfos.isEmpty()) {
         return alternativeDecoderInfos;
       }
