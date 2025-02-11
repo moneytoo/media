@@ -76,7 +76,13 @@ public final class MediaCodecUtil {
   // Lazily initialized.
   private static int maxH264DecodableFrameSize = -1;
 
+  private static volatile boolean mapDV7ToHevc;
+
   private MediaCodecUtil() {}
+
+  public static void setMapDV7ToHevc(boolean mapDV7ToHevc) {
+    MediaCodecUtil.mapDV7ToHevc = mapDV7ToHevc;
+  }
 
   /**
    * Optional call to warm the codec cache for a given MIME type.
@@ -470,7 +476,8 @@ public final class MediaCodecUtil {
       if (codecProfileAndLevel != null && codecProfileAndLevel.isSupportableByMediaCodec()) {
         int profile = codecProfileAndLevel.getProfile();
         if (profile == CodecProfileLevel.DolbyVisionProfileDvheDtr
-            || profile == CodecProfileLevel.DolbyVisionProfileDvheSt) {
+            || profile == CodecProfileLevel.DolbyVisionProfileDvheSt
+            || (mapDV7ToHevc && profile == CodecProfileLevel.DolbyVisionProfileDvheDtb)) {
           return MimeTypes.VIDEO_H265;
         } else if (profile == CodecProfileLevel.DolbyVisionProfileDvavSe) {
           return MimeTypes.VIDEO_H264;
