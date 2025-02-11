@@ -116,6 +116,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
   private boolean parseAv1SampleDependencies;
   private long lateThresholdToDropDecoderInputUs;
   private boolean enableMediaCodecBufferDecodeOnlyFlag;
+  private boolean mapDV7ToHevc;
 
   /**
    * @param context A {@link Context}.
@@ -127,6 +128,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
     allowedVideoJoiningTimeMs = DEFAULT_ALLOWED_VIDEO_JOINING_TIME_MS;
     mediaCodecSelector = MediaCodecSelector.DEFAULT;
     lateThresholdToDropDecoderInputUs = C.TIME_UNSET;
+    mapDV7ToHevc = false;
   }
 
   /**
@@ -143,6 +145,12 @@ public class DefaultRenderersFactory implements RenderersFactory {
   public final DefaultRenderersFactory setExtensionRendererMode(
       @ExtensionRendererMode int extensionRendererMode) {
     this.extensionRendererMode = extensionRendererMode;
+    return this;
+  }
+
+  @CanIgnoreReturnValue
+  public DefaultRenderersFactory setMapDV7ToHevc(boolean mapDV7ToHevc) {
+    this.mapDV7ToHevc = mapDV7ToHevc;
     return this;
   }
 
@@ -441,7 +449,8 @@ public class DefaultRenderersFactory implements RenderersFactory {
             .setEventListener(eventListener)
             .setMaxDroppedFramesToNotify(MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY)
             .experimentalSetParseAv1SampleDependencies(parseAv1SampleDependencies)
-            .experimentalSetLateThresholdToDropDecoderInputUs(lateThresholdToDropDecoderInputUs);
+            .experimentalSetLateThresholdToDropDecoderInputUs(lateThresholdToDropDecoderInputUs)
+            .setMapDV7ToHevc(mapDV7ToHevc);
     if (SDK_INT >= 34) {
       videoRendererBuilder =
           videoRendererBuilder.experimentalSetEnableMediaCodecBufferDecodeOnlyFlag(
@@ -899,7 +908,8 @@ public class DefaultRenderersFactory implements RenderersFactory {
               .setEventListener(eventListener)
               .setMaxDroppedFramesToNotify(MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY)
               .experimentalSetParseAv1SampleDependencies(parseAv1SampleDependencies)
-              .experimentalSetLateThresholdToDropDecoderInputUs(lateThresholdToDropDecoderInputUs);
+              .experimentalSetLateThresholdToDropDecoderInputUs(lateThresholdToDropDecoderInputUs)
+              .setMapDV7ToHevc(mapDV7ToHevc);
       if (SDK_INT >= 34) {
         builder =
             builder.experimentalSetEnableMediaCodecBufferDecodeOnlyFlag(
