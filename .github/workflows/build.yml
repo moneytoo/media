@@ -54,8 +54,8 @@ jobs:
       - name: decoder_iamf
         uses: actions/checkout@v4
         with:
-          repository: AOMediaCodec/libiamf
-          ref: v1.1.0
+          repository: moneytoo/libiamf
+          ref: v1.1.0a
           path: libraries/decoder_iamf/src/main/jni/libiamf
           sparse-checkout: |
             *
