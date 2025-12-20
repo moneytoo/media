@@ -52,3 +52,7 @@ target_link_libraries(mpeghJNI
                       PRIVATE mpeghdec
                       PRIVATE ${android_log_lib})
 
+# Enable 16 KB ELF alignment.
+target_link_options(mpeghJNI
+                    PRIVATE "-Wl,-z,max-page-size=16384")
+
